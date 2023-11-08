@@ -4,6 +4,7 @@ import os
 import time
 import json
 import requests
+import random
 
 
 def get_ticker_list(
@@ -34,6 +35,8 @@ def fetch_and_cache_tickers(source_url, cache_path):
     # make request to get the list of tickers
     r = requests.get(source_url)
     ticker_list = r.text.split("\n")
+    # Remove empty lines
+    ticker_list = [t.strip() for t in ticker_list if t]
 
     # Prepare cache data with timestamp and source URL
     cache_data = {
@@ -49,7 +52,7 @@ def fetch_and_cache_tickers(source_url, cache_path):
     return ticker_list
 
 
-def init_driver(download_dir="./downloads", retries=3, delay=1):
+def init_driver(download_dir="./downloads", retries=5, delay=5):
     for i in range(retries):
         try:
             chrome_options = uc.ChromeOptions()
@@ -70,9 +73,13 @@ def init_driver(download_dir="./downloads", retries=3, delay=1):
             )
             driver = uc.Chrome(options=chrome_options)
             return driver
-        except PermissionError:
+        except Exception:
+            print(f"Failed to start driver, retrying ({i + 1}/{retries})")
             if i < retries - 1:  # i is 0 indexed
-                time.sleep(delay)
+                time.sleep(random.random() * delay)
                 continue
             else:
                 raise
+
+    print("!!!Could not start driver!!!")
+    exit(1)

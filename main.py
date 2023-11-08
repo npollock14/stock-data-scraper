@@ -110,4 +110,12 @@ def scrape_urls(ticker_list, num_threads=5, download_dir="./downloads"):
 
 
 ticker_list = get_ticker_list()
-scrape_urls(ticker_list, num_threads=5)
+# check what we have already downloaded
+download_dir = "./downloads"
+downloaded_files = os.listdir(download_dir)
+downloaded_tickers = [f.split(".")[0].lower() for f in downloaded_files]
+# remove already downloaded tickers
+ticker_list = [t for t in ticker_list if t.lower() not in downloaded_tickers]
+print(len(ticker_list))
+# scrape the remaining tickers
+# scrape_urls(ticker_list, num_threads=5)
